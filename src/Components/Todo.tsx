@@ -29,7 +29,7 @@ const CustomizedListItem = styled(ListItem)`
 `;
 
 class Todo extends React.Component<ITodo> {
-  state = { editting: this.props.content === "" };
+  state = { editting: this.props.content === "", editText: this.props.content };
 
   handleCompleteToggle = () => {
     const updatedComplete = !this.props.complete;
@@ -48,8 +48,33 @@ class Todo extends React.Component<ITodo> {
     update(ref(db), updates);
   };
 
+  handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Escape") {
+      this.setState({ editting: false });
+      this.setState({ editText: this.props.content });
+      // this.props.onCancel(event);
+    } else if (event.key === "Enter") {
+      this.handleSubmit(event);
+    }
+  };
+
+  handleSubmit = (event: React.KeyboardEvent) => {
+    var val = this.state.editText.trim();
+    if (val) {
+      const updates: any = {};
+      updates[`post/${this.props.id}/content`] = val;
+      update(ref(db), updates);
+      this.setState({ editting: false });
+    }
+  };
+
+  handleChange = (event: React.FormEvent) => {
+    var input: any = event.target;
+    this.setState({ editText: input.value });
+  };
+
   render() {
-    const { editting } = this.state;
+    const { editting, editText } = this.state;
     return (
       <CustomizedListItem
         key={this.props.id}
@@ -57,7 +82,7 @@ class Todo extends React.Component<ITodo> {
           <>
             {editting ? (
               <>
-                <Tooltip title="edit" arrow>
+                {/* <Tooltip title="edit" arrow>
                   <span>
                     <IconButton
                       aria-label="complete"
@@ -68,7 +93,7 @@ class Todo extends React.Component<ITodo> {
                       <CheckIcon fontSize="small" />
                     </IconButton>
                   </span>
-                </Tooltip>
+                </Tooltip> */}
                 <Tooltip title="cancel" arrow>
                   <span>
                     <IconButton
@@ -130,10 +155,12 @@ class Todo extends React.Component<ITodo> {
             </ListItemIcon>
             <TextField
               id={this.props.id}
-              value={this.props.content}
+              value={editText}
               variant="standard"
-              onInput={(e) => {
-                this.updateContent((e.target as HTMLInputElement).value);
+              autoFocus={true}
+              onChange={(e) => this.handleChange(e)}
+              onKeyDown={(e) => {
+                this.handleKeyDown(e);
               }}
             />
           </ListItemButton>
