@@ -179,6 +179,7 @@ class Todo extends React.Component<ITodo> {
               />
             </ListItemIcon>
             <TextField
+              fullWidth
               id={this.props.id}
               value={editText}
               variant="standard"
@@ -212,6 +213,10 @@ class Todo extends React.Component<ITodo> {
               id={this.props.id}
               primary={this.props.content}
               secondary={`${dt} minutes ago`}
+              style={{
+                wordWrap: "break-word",
+                marginRight: "30%",
+              }}
             />
           </ListItemButton>
         )}

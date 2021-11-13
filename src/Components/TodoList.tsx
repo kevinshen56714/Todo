@@ -13,14 +13,13 @@ import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 
 const Wrapper = styled.div`
-  width: 400px;
+  width: 500px;
+  max-width: 80%;
   background: #ffffff88;
   box-shadow: 0 10px 80px #0000003d;
-  position: fixed;
-  text-align: center;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  margin: 10%;
   border-radius: 16px;
   padding-top: 20px;
 
@@ -180,6 +179,7 @@ export default function TodoList() {
           width: "100%",
           bgcolor: "background: #ffffff83;",
           padding: 0,
+          overflow: "hidden",
         }}
       >
         <NewTodoRow />
