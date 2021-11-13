@@ -51,6 +51,11 @@ const TopWrapper = styled.div`
   gap: 3px;
 `;
 
+const TodoWrapper = styled.div`
+  max-height: 600px;
+  overflow-y: auto;
+`;
+
 function downloadTodos() {
   var todoSummary = "";
   var counter = 0;
@@ -178,16 +183,18 @@ export default function TodoList() {
         }}
       >
         <NewTodoRow />
-        {todoList.map((todo) => {
-          return (
-            <Todo
-              id={todo.id}
-              content={todo.content}
-              complete={todo.complete}
-              createdAt={todo.createdAt}
-            />
-          );
-        })}
+        <TodoWrapper>
+          {todoList.map((todo) => {
+            return (
+              <Todo
+                id={todo.id}
+                content={todo.content}
+                complete={todo.complete}
+                createdAt={todo.createdAt}
+              />
+            );
+          })}
+        </TodoWrapper>
       </List>
     </Wrapper>
   );
