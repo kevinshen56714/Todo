@@ -14,7 +14,6 @@ import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
-// import CheckIcon from "@material-ui/icons/Check";
 import CloseIcon from "@material-ui/icons/Close";
 
 const CustomizedListItem = styled(ListItem)`
@@ -26,10 +25,30 @@ const CustomizedListItem = styled(ListItem)`
       opacity: 1;
     }
   }
+  .complete {
+    text-decoration: line-through;
+    opacity: 0.5;
+    color: #4d4aca;
+  }
 `;
 
 class Todo extends React.Component<ITodo> {
-  state = { editting: this.props.content === "", editText: this.props.content };
+  state = {
+    editting: false,
+    editText: this.props.content,
+    dt: 0,
+  };
+
+  componentDidMount = () => {
+    const secTimer = setInterval(() => {
+      var timeDiff = new Date().getTime() - this.props.createdAt;
+      // get elapsed minutes
+      timeDiff /= 60000;
+      this.setState({ dt: Math.round(timeDiff) });
+    }, 1000);
+
+    return () => clearInterval(secTimer);
+  };
 
   handleCompleteToggle = () => {
     const updatedComplete = !this.props.complete;
@@ -52,7 +71,6 @@ class Todo extends React.Component<ITodo> {
     if (event.key === "Escape") {
       this.setState({ editting: false });
       this.setState({ editText: this.props.content });
-      // this.props.onCancel(event);
     } else if (event.key === "Enter") {
       this.handleSubmit(event);
     }
@@ -73,8 +91,14 @@ class Todo extends React.Component<ITodo> {
     this.setState({ editText: input.value });
   };
 
+  getElapsedTime = () => {
+    const d = new Date(this.props.createdAt);
+    return d.toTimeString;
+  };
+
   render() {
-    const { editting, editText } = this.state;
+    const { editting, editText, dt } = this.state;
+
     return (
       <CustomizedListItem
         key={this.props.id}
@@ -116,7 +140,7 @@ class Todo extends React.Component<ITodo> {
                       aria-label="edit"
                       size="small"
                       onClick={() => this.setState({ editting: true })}
-                      disabled={false}
+                      disabled={this.props.complete}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
@@ -148,6 +172,7 @@ class Todo extends React.Component<ITodo> {
                 edge="start"
                 checked={this.props.complete}
                 tabIndex={-1}
+                color="secondary"
                 disableRipple
                 onClick={this.handleCompleteToggle}
                 inputProps={{ "aria-labelledby": this.props.id }}
@@ -158,6 +183,7 @@ class Todo extends React.Component<ITodo> {
               value={editText}
               variant="standard"
               autoFocus={true}
+              color="secondary"
               onChange={(e) => this.handleChange(e)}
               onKeyDown={(e) => {
                 this.handleKeyDown(e);
@@ -176,11 +202,17 @@ class Todo extends React.Component<ITodo> {
                 edge="start"
                 checked={this.props.complete}
                 tabIndex={-1}
+                color="secondary"
                 disableRipple
                 inputProps={{ "aria-labelledby": this.props.id }}
               />
             </ListItemIcon>
-            <ListItemText id={this.props.id} primary={this.props.content} />
+            <ListItemText
+              className={this.props.complete ? "complete" : "pending"}
+              id={this.props.id}
+              primary={this.props.content}
+              secondary={`${dt} minutes ago`}
+            />
           </ListItemButton>
         )}
       </CustomizedListItem>

@@ -1,7 +1,14 @@
-/* .App {
-  text-align: center;
+.App {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(102.7deg, #d1d0ff, #e4bbff, #ffdae3, #ffddfc);
+  font-family: "Poppins", sans-serif;
 }
-
+/* 
 .App-logo {
   height: 40vmin;
   pointer-events: none;

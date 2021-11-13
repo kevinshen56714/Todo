@@ -1,23 +1,80 @@
 import { useState, useEffect } from "react";
+import styled from "styled-components";
 import db from "../Firebase";
 import { ref, push, get, onValue } from "firebase/database";
 import { saveAs } from "file-saver";
 import ITodo from "../Types/ITodo";
 import Todo from "./Todo";
 import List from "@mui/material/List";
-import AddIcon from "@material-ui/icons/AddCircle";
+import ListItem from "@mui/material/ListItem";
 import DownloadIcon from "@mui/icons-material/Download";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
 
-function createTodo() {
-  push(ref(db, "post/"), {
-    complete: false,
-    content: "",
-  })
-    .then(() => console.log("successfully created a new todo"))
-    .catch((e) => console.log(e.message));
-}
+const Wrapper = styled.div`
+  width: 400px;
+  background: #ffffff88;
+  box-shadow: 0 10px 80px #0000003d;
+  position: fixed;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 16px;
+  padding-top: 20px;
+
+  h1 {
+    margin: 0px;
+  }
+`;
+
+const TitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+`;
+
+const CounterText = styled.p`
+  color: #000;
+  opacity: 0.5;
+  font-size: 14px;
+  margin: 0;
+`;
+
+const TopWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+`;
+
+// function handleKeyDown = (event: React.KeyboardEvent) => {
+//   if (event.key === "Escape") {
+//     this.setState({ editting: false });
+//     this.setState({ editText: this.props.content });
+//     // this.props.onCancel(event);
+//   } else if (event.key === "Enter") {
+//     this.handleSubmit(event);
+//   }
+// };
+
+// function handleSubmit = (event: React.KeyboardEvent) => {
+//   var val = this.state.editText.trim();
+//   if (val) {
+//     const updates: any = {};
+//     updates[`post/${this.props.id}/content`] = val;
+//     update(ref(db), updates);
+//     this.setState({ editting: false });
+//   }
+// };
+
+// function handleChange = (event: React.FormEvent) => {
+//   var input: any = event.target;
+//   this.setState({ editText: input.value });
+// };
 
 function downloadTodos() {
   var todoSummary = "";
@@ -46,6 +103,57 @@ function downloadTodos() {
     });
 }
 
+function NewTodoRow() {
+  const [editText, setEditText] = useState<string>("");
+
+  function handleSubmit() {
+    push(ref(db, "post/"), {
+      complete: false,
+      content: editText,
+      createdAt: new Date().getTime(),
+    })
+      .then(() => setEditText(""))
+      .catch((e) => console.log(e.message));
+  }
+  return (
+    <>
+      <ListItem>
+        <TextField
+          id="newTodo"
+          label="Add a new Task..."
+          fullWidth
+          value={editText}
+          variant="standard"
+          autoFocus={true}
+          color="secondary"
+          onChange={(e) => {
+            var input: any = e.target;
+            setEditText(input.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSubmit();
+            }
+          }}
+        />
+      </ListItem>
+
+      {/* <Tooltip title="add" arrow>
+        <span>
+          <IconButton
+            aria-label="add"
+            size="small"
+            onClick={createTodo}
+            disabled={false}
+          >
+            <AddIcon fontSize="small" />
+          </IconButton>
+        </span>
+      </Tooltip> */}
+    </>
+  );
+}
+
 export default function TodoList() {
   // setup hooks for todolist
   const [todoList, setTodoList] = useState<ITodo[]>(new Array<ITodo>());
@@ -63,6 +171,7 @@ export default function TodoList() {
             id: key,
             complete: val.complete,
             content: val.content,
+            createdAt: val.createdAt,
           });
         }
       });
@@ -71,43 +180,51 @@ export default function TodoList() {
   }, []);
 
   return (
-    <div>
-      <h1>TodoList</h1>
-      <Tooltip title="add" arrow>
-        <span>
-          <IconButton
-            aria-label="add"
-            size="small"
-            onClick={createTodo}
-            disabled={false}
-          >
-            <AddIcon fontSize="small" />
-          </IconButton>
-        </span>
-      </Tooltip>
-      <Tooltip title="download" arrow>
-        <span>
-          <IconButton
-            aria-label="download"
-            size="small"
-            onClick={downloadTodos}
-            disabled={false}
-          >
-            <DownloadIcon fontSize="small" />
-          </IconButton>
-        </span>
-      </Tooltip>
-      <List sx={{ width: "50%", maxWidth: 360, bgcolor: "background.paper" }}>
+    <Wrapper>
+      <TopWrapper>
+        <TitleWrapper>
+          <h1>TodoList</h1>
+          <Tooltip title="download" arrow>
+            <span>
+              <IconButton
+                aria-label="download"
+                size="small"
+                onClick={downloadTodos}
+                disabled={false}
+              >
+                <DownloadIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        </TitleWrapper>
+        <CounterText>
+          {
+            todoList.filter((todo) => {
+              return !todo.complete;
+            }).length
+          }{" "}
+          More to go!
+        </CounterText>
+      </TopWrapper>
+      <List
+        sx={{
+          width: "100%",
+          bgcolor: "background: #ffffff83;",
+          padding: 0,
+        }}
+      >
+        <NewTodoRow />
         {todoList.map((todo) => {
           return (
             <Todo
               id={todo.id}
               content={todo.content}
               complete={todo.complete}
+              createdAt={todo.createdAt}
             />
           );
         })}
       </List>
-    </div>
+    </Wrapper>
   );
 }
