@@ -51,31 +51,6 @@ const TopWrapper = styled.div`
   gap: 3px;
 `;
 
-// function handleKeyDown = (event: React.KeyboardEvent) => {
-//   if (event.key === "Escape") {
-//     this.setState({ editting: false });
-//     this.setState({ editText: this.props.content });
-//     // this.props.onCancel(event);
-//   } else if (event.key === "Enter") {
-//     this.handleSubmit(event);
-//   }
-// };
-
-// function handleSubmit = (event: React.KeyboardEvent) => {
-//   var val = this.state.editText.trim();
-//   if (val) {
-//     const updates: any = {};
-//     updates[`post/${this.props.id}/content`] = val;
-//     update(ref(db), updates);
-//     this.setState({ editting: false });
-//   }
-// };
-
-// function handleChange = (event: React.FormEvent) => {
-//   var input: any = event.target;
-//   this.setState({ editText: input.value });
-// };
-
 function downloadTodos() {
   var todoSummary = "";
   var counter = 0;
@@ -107,13 +82,15 @@ function NewTodoRow() {
   const [editText, setEditText] = useState<string>("");
 
   function handleSubmit() {
-    push(ref(db, "post/"), {
-      complete: false,
-      content: editText,
-      createdAt: new Date().getTime(),
-    })
-      .then(() => setEditText(""))
-      .catch((e) => console.log(e.message));
+    if (editText) {
+      push(ref(db, "post/"), {
+        complete: false,
+        content: editText,
+        createdAt: new Date().getTime(),
+      })
+        .then(() => setEditText(""))
+        .catch((e) => console.log(e.message));
+    }
   }
   return (
     <>
@@ -137,19 +114,6 @@ function NewTodoRow() {
           }}
         />
       </ListItem>
-
-      {/* <Tooltip title="add" arrow>
-        <span>
-          <IconButton
-            aria-label="add"
-            size="small"
-            onClick={createTodo}
-            disabled={false}
-          >
-            <AddIcon fontSize="small" />
-          </IconButton>
-        </span>
-      </Tooltip> */}
     </>
   );
 }
