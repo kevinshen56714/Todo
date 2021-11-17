@@ -22,6 +22,7 @@ const Wrapper = styled.div`
   margin: 10%;
   border-radius: 16px;
   padding-top: 20px;
+  overflow: hidden;
 
   h1 {
     margin: 0px;
@@ -51,11 +52,10 @@ const TopWrapper = styled.div`
 `;
 
 const TodoWrapper = styled.div`
-  max-height: 85%;
   overflow-y: auto;
 `;
 
-function downloadTodos() {
+const downloadTodos = () => {
   var todoSummary = "";
   var counter = 0;
   get(ref(db, "post/"))
@@ -80,12 +80,12 @@ function downloadTodos() {
       });
       saveAs(blob, "todolist.txt");
     });
-}
+};
 
-function NewTodoRow() {
+const NewTodoRow = () => {
   const [editText, setEditText] = useState<string>("");
 
-  function handleSubmit() {
+  const handleSubmit = () => {
     if (editText) {
       push(ref(db, "post/"), {
         complete: false,
@@ -95,7 +95,7 @@ function NewTodoRow() {
         .then(() => setEditText(""))
         .catch((e) => console.log(e.message));
     }
-  }
+  };
   return (
     <>
       <ListItem>
@@ -120,7 +120,7 @@ function NewTodoRow() {
       </ListItem>
     </>
   );
-}
+};
 
 export default function TodoList() {
   // setup hooks for todolist
@@ -181,6 +181,8 @@ export default function TodoList() {
           bgcolor: "background: #ffffff83;",
           padding: 0,
           overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <NewTodoRow />

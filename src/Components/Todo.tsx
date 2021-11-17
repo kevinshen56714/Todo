@@ -16,7 +16,11 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import CloseIcon from "@material-ui/icons/Close";
 
-const CustomizedListItem = styled(ListItem)`
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   .hover-show {
     opacity: 0;
   }
@@ -39,15 +43,19 @@ class Todo extends React.Component<ITodo> {
     dt: 0,
   };
 
+  private secTimer?: number;
+
   componentDidMount = () => {
-    const secTimer = setInterval(() => {
+    this.secTimer = window.setInterval(() => {
       var timeDiff = new Date().getTime() - this.props.createdAt;
       // get elapsed minutes
       timeDiff /= 60000;
       this.setState({ dt: Math.round(timeDiff) });
     }, 1000);
+  };
 
-    return () => clearInterval(secTimer);
+  componentWillUnmount = () => {
+    clearInterval(this.secTimer);
   };
 
   handleCompleteToggle = () => {
@@ -100,127 +108,118 @@ class Todo extends React.Component<ITodo> {
     const { editting, editText, dt } = this.state;
 
     return (
-      <CustomizedListItem
-        key={this.props.id}
-        secondaryAction={
-          <>
-            {editting ? (
-              <>
-                {/* <Tooltip title="edit" arrow>
-                  <span>
-                    <IconButton
-                      aria-label="complete"
-                      size="small"
-                      onClick={() => this.setState({ editting: false })}
-                      disabled={false}
-                    >
-                      <CheckIcon fontSize="small" />
-                    </IconButton>
-                  </span>
-                </Tooltip> */}
-                <Tooltip title="cancel" arrow>
-                  <span>
-                    <IconButton
-                      aria-label="cancel"
-                      size="small"
-                      onClick={() => this.setState({ editting: false })}
-                      disabled={false}
-                    >
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              </>
-            ) : (
-              <>
-                <Tooltip title="edit" arrow>
-                  <span>
-                    <IconButton
-                      className="hover-show"
-                      aria-label="edit"
-                      size="small"
-                      onClick={() => this.setState({ editting: true })}
-                      disabled={this.props.complete}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-                <Tooltip title="delete" arrow>
-                  <span>
-                    <IconButton
-                      className="hover-show"
-                      aria-label="delete"
-                      size="small"
-                      onClick={this.delete}
-                      disabled={false}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              </>
-            )}
-          </>
-        }
-        disablePadding
-      >
-        {editting ? (
-          <ListItemButton role={undefined} divider dense>
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={this.props.complete}
-                tabIndex={-1}
+      <Wrapper>
+        <ListItem
+          key={this.props.id}
+          secondaryAction={
+            <>
+              {editting ? (
+                <>
+                  <Tooltip title="cancel" arrow>
+                    <span>
+                      <IconButton
+                        aria-label="cancel"
+                        size="small"
+                        onClick={() => this.setState({ editting: false })}
+                        disabled={false}
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </>
+              ) : (
+                <>
+                  <Tooltip title="edit" arrow>
+                    <span>
+                      <IconButton
+                        className="hover-show"
+                        aria-label="edit"
+                        size="small"
+                        onClick={() => this.setState({ editting: true })}
+                        disabled={this.props.complete}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </>
+              )}
+            </>
+          }
+          disablePadding
+        >
+          {editting ? (
+            <ListItemButton role={undefined} divider dense>
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={this.props.complete}
+                  tabIndex={-1}
+                  color="secondary"
+                  disableRipple
+                  onClick={this.handleCompleteToggle}
+                  inputProps={{ "aria-labelledby": this.props.id }}
+                />
+              </ListItemIcon>
+              <TextField
+                fullWidth
+                id={this.props.id}
+                value={editText}
+                variant="standard"
+                autoFocus={true}
                 color="secondary"
-                disableRipple
-                onClick={this.handleCompleteToggle}
-                inputProps={{ "aria-labelledby": this.props.id }}
+                onChange={(e) => this.handleChange(e)}
+                onKeyDown={(e) => {
+                  this.handleKeyDown(e);
+                }}
               />
-            </ListItemIcon>
-            <TextField
-              fullWidth
-              id={this.props.id}
-              value={editText}
-              variant="standard"
-              autoFocus={true}
-              color="secondary"
-              onChange={(e) => this.handleChange(e)}
-              onKeyDown={(e) => {
-                this.handleKeyDown(e);
-              }}
-            />
-          </ListItemButton>
-        ) : (
-          <ListItemButton
-            role={undefined}
-            divider
-            dense
-            onClick={this.handleCompleteToggle}
-          >
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={this.props.complete}
-                tabIndex={-1}
-                color="secondary"
-                disableRipple
-                inputProps={{ "aria-labelledby": this.props.id }}
+            </ListItemButton>
+          ) : (
+            <ListItemButton
+              role={undefined}
+              divider
+              dense
+              onClick={this.handleCompleteToggle}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={this.props.complete}
+                  tabIndex={-1}
+                  color="secondary"
+                  disableRipple
+                  inputProps={{ "aria-labelledby": this.props.id }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                className={this.props.complete ? "complete" : "pending"}
+                id={this.props.id}
+                primary={this.props.content}
+                secondary={`${dt} minutes ago`}
+                style={{
+                  overflowWrap: "anywhere",
+                }}
               />
-            </ListItemIcon>
-            <ListItemText
-              className={this.props.complete ? "complete" : "pending"}
-              id={this.props.id}
-              primary={this.props.content}
-              secondary={`${dt} minutes ago`}
-              style={{
-                wordWrap: "break-word",
-                marginRight: "30%",
-              }}
-            />
-          </ListItemButton>
+            </ListItemButton>
+          )}
+        </ListItem>
+        {!editting && (
+          <Tooltip title="delete" arrow>
+            <span>
+              <IconButton
+                className="hover-show"
+                aria-label="delete"
+                size="small"
+                onClick={this.delete}
+                disabled={false}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
         )}
-      </CustomizedListItem>
+      </Wrapper>
     );
   }
 }
